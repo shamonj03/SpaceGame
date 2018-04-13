@@ -16,8 +16,8 @@ protected:
 	GLuint colorBuffer;
 
 public:
-	glm::vec2 velocity;
-	glm::vec2 acceleration;
+	glm::vec3 velocity;
+	glm::vec3 acceleration;
 	glm::vec3 normal;
 	glm::vec4 color;
 
