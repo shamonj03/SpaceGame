@@ -1,0 +1,7 @@
+*.zip
+/.vs/
+/Debug/
+*.7z
+*.user
+*.vcxproj
+*.filters
