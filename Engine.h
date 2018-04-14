@@ -22,7 +22,7 @@ using namespace std;
 class Engine {
 protected:
 	bool quit, paused;
-	int width, height;
+	float width, height;
 
 	GLuint standardShader, texturedShader;
 	Camera* camera;

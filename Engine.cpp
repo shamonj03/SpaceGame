@@ -13,7 +13,7 @@ Engine::Engine(float width_, float height_) :
 		std::cout << "Failed to initialize SDL Error: " << SDL_GetError() << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	window = SDL_CreateWindow("Particles SDL/GLEW", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
+	window = SDL_CreateWindow("Particles SDL/GLEW", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width_, height_, SDL_WINDOW_OPENGL);
 
 	if (window == NULL) {
 		std::cout << "Failed to initialize SDL window Error: " << SDL_GetError() << std::endl;
@@ -38,7 +38,7 @@ Engine::Engine(float width_, float height_) :
 	glEnable(GL_BLEND);
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SDL_CaptureMouse(SDL_TRUE);
-	SDL_WarpMouseInWindow(window, width / 2, height / 2);
+	SDL_WarpMouseInWindow(window, height_ / 2, height_ / 2);
 
 	glClearDepth(1.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -145,7 +145,7 @@ void Engine::start() {
 		if (paused) {
 			update(dt);
 		}
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 		draw(dt);
 
 		frames++;

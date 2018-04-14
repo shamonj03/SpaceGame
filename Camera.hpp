@@ -20,7 +20,7 @@ private:
 	float horizontalAngle;
 	float verticalAngle;
 	float fov = 90.0f;
-	float distance = 7.0f;
+	float distance = 16.0f;
 
 	float perspective = 16.0f / 9.0f;
 
@@ -43,12 +43,11 @@ public:
 	void onKeyDown(const Uint8 *keyboard_state_array, float dt);
 };
 
-inline Camera::Camera() : position(glm::vec3(0.0f, 2.0f, 0.0f)), horizontalAngle(0.0f), verticalAngle(0.0f), model(glm::mat4(1.0f)), enabled(true) {
+inline Camera::Camera() : position(glm::vec3(0.0f, 0.0f, 0.0f)), horizontalAngle(0.0f), verticalAngle(0.0f), model(glm::mat4(1.0f)), enabled(true) {
 	updateView();
 }
 
 inline void Camera::updateView() {
-
 	projection = glm::perspective(glm::radians(fov), perspective, 0.1f, 100.0f);
 	view = glm::lookAt(getEye(), position, glm::vec3(0, 1, 0));
 

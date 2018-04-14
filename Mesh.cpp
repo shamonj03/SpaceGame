@@ -2,7 +2,8 @@
 #include "Shader.h"
 #include <iostream>
 
-Mesh::Mesh(int rows_, int cols_, float quad_size_, glm::vec3 offset_) : rows(rows_), cols(cols_), v_x(cols_ + 1), v_y(rows_ + 1), quad_size(quad_size_), offset(offset_) {
+Mesh::Mesh(int rows_, int cols_, float quad_size_) : rows(rows_), cols(cols_), v_x(cols_ + 1), v_y(rows_ + 1), quad_size(quad_size_) {
+	offset = glm::vec3(-rows_ / 2, -cols_ / 2, 0);
 	vertex_count = v_x * v_y;
 	index_count = rows * cols * 6;
 
@@ -15,8 +16,8 @@ Mesh::Mesh(int rows_, int cols_, float quad_size_, glm::vec3 offset_) : rows(row
 	for (int y = 0; y < v_y; y++) {
 		for (int x = 0; x < v_x; x++) {
 			int index = x + (y * v_x);
-			glm::vec3 pos(x * quad_size, 0, y * quad_size);
-			verticies[index] = offset + pos;
+			glm::vec3 pos(x * quad_size, y * quad_size, 0);
+			verticies[index] = pos;
 			colors[index] = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
 			normals[index] = glm::vec3(0, 1, 0);
 			textCoords[index] = glm::vec2((float) x / (float) (cols), (float) y / (float)(rows));
@@ -45,6 +46,7 @@ void Mesh::initializeBuffers(GLuint shader) {
 	glUseProgram(shader);
 	Shader::bindArray(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, index_count * sizeof(int), &indices[0], GL_STATIC_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, vertex_count * sizeof(glm::vec3), NULL, GL_STREAM_DRAW);
+	Shader::bindArray(GL_ARRAY_BUFFER, positionBuffer, sizeof(glm::vec3), NULL, GL_STREAM_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, colorBuffer, vertex_count * sizeof(glm::vec4), &colors[0], GL_STATIC_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, normalBuffer, vertex_count * sizeof(glm::vec3), NULL, GL_STREAM_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, texCoordBuffer, vertex_count * sizeof(glm::vec2), &textCoords[0], GL_STATIC_DRAW);
@@ -55,8 +57,9 @@ void Mesh::draw(GLenum mode) {
 	glPushMatrix();
 	Shader::sendArray(0, 3, vertexBuffer, vertex_count * sizeof(glm::vec3), &verticies[0], GL_STREAM_DRAW);
 	Shader::sendArray(1, 3, normalBuffer, vertex_count * sizeof(glm::vec3), &normals[0], GL_STREAM_DRAW);
-	Shader::sendArray(2, 2, texCoordBuffer);
+	Shader::sendArray(2, 3, positionBuffer, sizeof(glm::vec3), &offset[0], GL_STREAM_DRAW);
 	Shader::sendArray(3, 4, colorBuffer);
+	Shader::sendArray(4, 2, texCoordBuffer);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 	glDrawElements(mode, index_count, GL_UNSIGNED_INT, 0);

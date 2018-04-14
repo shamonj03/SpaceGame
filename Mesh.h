@@ -25,13 +25,14 @@ public:
 
 	GLuint vertexBuffer;
 	GLuint normalBuffer;
+	GLuint positionBuffer;
 	GLuint texCoordBuffer;
 	GLuint indexBuffer;
 	GLuint colorBuffer;
 
 	virtual void draw(GLenum mode);
 
-	Mesh(int rows_, int cols_, float quad_size_, glm::vec3 offset_ = glm::vec3(0, 0, 0));
+	Mesh(int rows_, int cols_, float quad_size_);
 
 	void initializeBuffers(GLuint shader);
 
