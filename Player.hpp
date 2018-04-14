@@ -109,14 +109,15 @@ void Player::draw(float dt) {
 	//Shader::sendArray(2, 2, texCoordBuffer);
 	Shader::sendArray(3, 4, colorBuffer);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-	glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
-
 
 	glVertexAttribDivisor(0, 0);
 	glVertexAttribDivisor(1, 1); // normal : one per quad -> 1
 	glVertexAttribDivisor(2, 1); // positions : one per quad (its center) -> 1
 	glVertexAttribDivisor(3, 1); // color : one per quad -> 1
+
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+	glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
