@@ -27,8 +27,6 @@ private:
 	float speed = 15.0f; // 3 units / second
 	float mouseSpeed = 0.005f;
 
-	void updateView();
-
 	void updateMouseCords();
 
 public:
@@ -38,6 +36,8 @@ public:
 
 	Camera();
 
+
+	void updateView();
 	glm::vec3 getEye();
 	void mouseMotion(SDL_MouseMotionEvent& e);
 	void onKeyDown(const Uint8 *keyboard_state_array, float dt);

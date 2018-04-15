@@ -4,6 +4,7 @@
 #include <glm\glm.hpp>
 #include <GL\glew.h>
 
+#include "Util.hpp"
 #include "Shader.h"
 
 class ParticleSystem {
@@ -12,7 +13,12 @@ class ParticleSystem {
 	glm::vec4* colors;
 	glm::vec3 normal;
 
-	static glm::vec3 vertices[4];
+	glm::vec3 vertices[4] = {
+		glm::vec3(-0.5f, -0.5f, 0.0f),
+		glm::vec3(0.5f, -0.5f, 0.0f),
+		glm::vec3(-0.5f, 0.5f, 0.0f),
+		glm::vec3(0.5f, 0.5f, 0.0f),
+	};
 
 	float* sizes;
 	float* lifes;
@@ -43,22 +49,17 @@ public:
 	virtual void draw(float dt);
 };
 
-glm::vec3 ParticleSystem::vertices[4] = {
-	glm::vec3(-0.5f, -0.5f, 0.0f) * 0.2f,
-	glm::vec3(0.5f, -0.5f, 0.0f) * 0.2f,
-	glm::vec3(-0.5f, 0.5f, 0.0f) * 0.2f,
-	glm::vec3(0.5f, 0.5f, 0.0f) * 0.2f,
-};
-
 ParticleSystem::ParticleSystem(int genRate_, int maxParticles_) : genRate(genRate_), MAX_PARTICLES(maxParticles_), particleCount(0), normal(glm::vec3(0, 1, 0)) {
 	positions = new glm::vec3[MAX_PARTICLES];
 	velocities = new glm::vec3[MAX_PARTICLES];
 	colors = new glm::vec4[MAX_PARTICLES];
 	sizes = new float[MAX_PARTICLES];
 	lifes = new float[MAX_PARTICLES];
+
+	for (int i = 0; i < 4; i++) {
+		vertices[i] *= 0.5f;
+	}
 }
-
-
 
 void ParticleSystem::initializeBuffers(GLuint shader) {
 	glUseProgram(shader);
@@ -107,7 +108,6 @@ void ParticleSystem::destroy(int index) {
 	velocities[index] = velocities[particleCount];
 	colors[index] = colors[particleCount];
 	lifes[index] = lifes[particleCount];
-
 	particleCount--;
 }
 
@@ -119,8 +119,6 @@ void ParticleSystem::update(float dt) {
 
 		*pos = *pos + *vel * dt;
 	}
-
-	std::cout << particleCount << "/" << MAX_PARTICLES << ":" << genRate << std::endl;
 }
 
 void ParticleSystem::draw(float dt) {

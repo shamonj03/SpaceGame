@@ -5,13 +5,13 @@
 #include "Shader.h"
 
 #include "Entity.hpp"
+#include "Util.hpp"
 
 class Player : public Entity {
 private:
 	static glm::vec3 vertices[4];
 	static GLuint indices[6];
 	static GLfloat colors[16];
-
 
 public:
 
@@ -63,18 +63,17 @@ Player::~Player() {
 
 void Player::onKeyDown(SDL_KeyboardEvent& e) {
 	if (e.keysym.sym == SDLK_w) { // Accel forward
-		acceleration += glm::vec3(0, 0.1f, 0);
+		acceleration += glm::vec3(0, 0.5f, 0);
 		std::cout << "Key down w" << std::endl;
 	}
 	if (e.keysym.sym == SDLK_s) { // Deaccel
-		acceleration -= glm::vec3(0, 0.1f, 0);
+		acceleration -= glm::vec3(0, 0.5f, 0);
 		std::cout << "Key down s" << std::endl;
 	}
 	if (e.keysym.sym == SDLK_a) { // Rotate Left
-
+		
 	}
 	if (e.keysym.sym == SDLK_d) { // Rotate Right
-
 	}
 }
 
@@ -89,7 +88,7 @@ void Player::onKeyUp(SDL_KeyboardEvent& e) {
 void Player::initializeBuffers(GLuint shader) {
 	glUseProgram(shader);
 	Shader::bindArray(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, sizeof(indices), &indices[0], GL_STATIC_DRAW);
-	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, sizeof(glm::vec3) * sizeof(vertices), &vertices[0], GL_STATIC_DRAW);
+	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, sizeof(glm::vec3) * sizeof(vertices), &vertices[0], GL_STREAM_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, positionBuffer, sizeof(glm::vec3), NULL, GL_STREAM_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, colorBuffer, sizeof(colors), &colors[0], GL_STATIC_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, normalBuffer, sizeof(glm::vec3), &normal, GL_STATIC_DRAW);
