@@ -13,6 +13,8 @@ private:
 	static GLuint indices[6];
 	static GLfloat colors[16];
 
+	bool released;
+
 public:
 
 	Player(glm::vec3 position_);
@@ -63,17 +65,19 @@ Player::~Player() {
 
 void Player::onKeyDown(SDL_KeyboardEvent& e) {
 	if (e.keysym.sym == SDLK_w) { // Accel forward
-		acceleration += glm::vec3(0, 0.5f, 0);
-		std::cout << "Key down w" << std::endl;
+		acceleration += glm::vec3(0, 0.75f, 0);
+		released = false;
 	}
 	if (e.keysym.sym == SDLK_s) { // Deaccel
-		acceleration -= glm::vec3(0, 0.5f, 0);
-		std::cout << "Key down s" << std::endl;
+		acceleration -= glm::vec3(0, 0.75f, 0);
+		released = false;
 	}
+
 	if (e.keysym.sym == SDLK_a) { // Rotate Left
-		
+		angle += 5.0f;
 	}
 	if (e.keysym.sym == SDLK_d) { // Rotate Right
+		angle -= 5.0f;
 	}
 }
 
@@ -81,6 +85,7 @@ void Player::onKeyDown(SDL_KeyboardEvent& e) {
 void Player::onKeyUp(SDL_KeyboardEvent& e) {
 	if (e.keysym.sym == SDLK_w || e.keysym.sym == SDLK_s) { // Accel forward
 		acceleration = glm::vec3(0, 0, 0);
+		released = true;
 	}
 }
 
@@ -97,7 +102,21 @@ void Player::initializeBuffers(GLuint shader) {
 
 void Player::update(float dt) {
 	velocity += acceleration * dt;
+	velocity = Util::limit(velocity, maxSpeed);
+
+	// TODO: This rotation method sucks! But it works.
+	Util::rotate(velocity, angle);
 	position += velocity * dt;
+	Util::rotate(velocity, -angle);
+
+	Util::rotate(vertices, 4, angle);
+	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, sizeof(glm::vec3) * sizeof(vertices), &vertices[0], GL_STREAM_DRAW);
+	Util::rotate(vertices, 4, -angle);
+
+	// Slows down if key released.
+	if (released) {
+		velocity *= 0.99f;
+	}
 }
 
 void Player::draw(float dt) {

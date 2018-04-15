@@ -9,9 +9,11 @@ class Util {
 public:
 	static glm::vec3 rotate(glm::vec3& vec, float angle);
 
-	static void rotateVerticies(glm::vec3* verticies, int length, float angle);
+	static void rotate(glm::vec3* verticies, int length, float angle);
 
 	static float randf();
+
+	static glm::vec3 limit(const glm::vec3 &v, float maximum);
 };
 
 inline glm::vec3 Util::rotate(glm::vec3& vec, float angle) {
@@ -20,7 +22,7 @@ inline glm::vec3 Util::rotate(glm::vec3& vec, float angle) {
 	return vec;
 }
 
-inline void Util::rotateVerticies(glm::vec3* verticies, int length, float angle) {
+inline void Util::rotate(glm::vec3* verticies, int length, float angle) {
 	glm::mat4 rot_mat = glm::rotate(glm::mat4x4(1), glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f));
 	for (int i = 0; i < length; i++) {
 		verticies[i] = rot_mat * glm::vec4(verticies[i], 0);
@@ -30,4 +32,13 @@ inline void Util::rotateVerticies(glm::vec3* verticies, int length, float angle)
 inline float Util::randf() {
 	return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 }
+
+inline glm::vec3 Util::limit(const glm::vec3 &vec, float maximum) {
+	auto length = glm::length(vec);
+	if (length > maximum) {
+		return glm::normalize(vec) * maximum;
+	}
+	return vec;
+}
+
 #endif // UTIL_HPP
