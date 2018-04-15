@@ -13,9 +13,8 @@ private:
 	static GLuint indices[6];
 	static GLfloat colors[16];
 
-	bool released;
-
 public:
+	bool released;
 
 	Player(glm::vec3 position_);
 	~Player();

@@ -20,9 +20,10 @@ class ParticleSystem {
 		glm::vec3(0.5f, 0.5f, 0.0f),
 	};
 
-	float* sizes;
 	float* lifes;
 
+	float maxLife;
+	float maxVelocity;
 	int particleCount;
 	int genRate;
 
@@ -39,7 +40,10 @@ class ParticleSystem {
 	virtual void destroy(int index);
 
 public:
-	ParticleSystem(int genRate_, int maxParticles_);
+	float angle;
+	glm::vec3 offset;
+
+	ParticleSystem(float size, int genRate_, int maxParticles_, float maxLife_ = 10);
 	~ParticleSystem();
 
 	virtual void initializeBuffers(GLuint shader);
@@ -49,36 +53,34 @@ public:
 	virtual void draw(float dt);
 };
 
-ParticleSystem::ParticleSystem(int genRate_, int maxParticles_) : genRate(genRate_), MAX_PARTICLES(maxParticles_), particleCount(0), normal(glm::vec3(0, 1, 0)) {
+ParticleSystem::ParticleSystem(float size, int genRate_, int maxParticles_, float maxLife_) : maxLife(maxLife_), maxVelocity(3), offset(0), angle(0), genRate(genRate_), MAX_PARTICLES(maxParticles_), particleCount(0), normal(glm::vec3(0, 1, 0)) {
 	positions = new glm::vec3[MAX_PARTICLES];
 	velocities = new glm::vec3[MAX_PARTICLES];
 	colors = new glm::vec4[MAX_PARTICLES];
-	sizes = new float[MAX_PARTICLES];
 	lifes = new float[MAX_PARTICLES];
 
 	for (int i = 0; i < 4; i++) {
-		vertices[i] *= 0.5f;
+		vertices[i] *= size;
 	}
 }
 
 void ParticleSystem::initializeBuffers(GLuint shader) {
 	glUseProgram(shader);
 	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, sizeof(glm::vec3) * sizeof(vertices), &vertices[0], GL_STATIC_DRAW);
-	Shader::bindArray(GL_ARRAY_BUFFER, positionBuffer, MAX_PARTICLES * sizeof(glm::vec3), NULL, GL_STREAM_DRAW);
-	Shader::bindArray(GL_ARRAY_BUFFER, colorBuffer, MAX_PARTICLES * sizeof(glm::vec4), NULL, GL_STREAM_DRAW);
+	Shader::bindArray(GL_ARRAY_BUFFER, positionBuffer, particleCount * sizeof(glm::vec3), NULL, GL_STREAM_DRAW);
+	Shader::bindArray(GL_ARRAY_BUFFER, colorBuffer, particleCount * sizeof(glm::vec4), NULL, GL_STREAM_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, normalBuffer, sizeof(glm::vec3), &normal, GL_STATIC_DRAW);
 	glUseProgram(0);
 }
 
 void ParticleSystem::emit() {
-	if (particleCount >= MAX_PARTICLES) {
-		return;
-	}
-	positions[particleCount] = glm::vec3(-25 + rand() % 50, rand() % 10, 0);
+	positions[particleCount] = offset;
 	colors[particleCount] = glm::vec4(1, 1, 1, 1);
-	velocities[particleCount] = glm::vec3(0, -1, 0) * 5.0f;
-	lifes[particleCount] = 10;
+	velocities[particleCount] = glm::vec3(0, -1, 0) * maxVelocity;
+	lifes[particleCount] = maxLife;
 	particleCount++;
+	Util::rotate(vertices, 4, angle);
+	Util::rotate(velocities[particleCount], angle);
 }
 
 
@@ -86,16 +88,18 @@ void ParticleSystem::decay(float dt) {
 	for (int i = 0; i < particleCount; i++) {
 		float life = lifes[i];
 
-		if (life <= 0.0f) {
+		if ((life - (1 * dt)) <= 0.0f) {
 			destroy(i);
-		}
-		else {
+		} else {
 			lifes[i] -= 1 * dt;
 		}
 	}
 }
 
 void ParticleSystem::generate(float dt) {
+	if (particleCount >= MAX_PARTICLES) {
+		return;
+	}
 	float toGen = genRate * dt;
 
 	for (int i = 0; i < toGen; i++) {
@@ -104,10 +108,10 @@ void ParticleSystem::generate(float dt) {
 }
 
 void ParticleSystem::destroy(int index) {
-	positions[index] = positions[particleCount];
-	velocities[index] = velocities[particleCount];
-	colors[index] = colors[particleCount];
-	lifes[index] = lifes[particleCount];
+	positions[index] = positions[particleCount - 1];
+	velocities[index] = velocities[particleCount - 1];
+	colors[index] = colors[particleCount - 1];
+	lifes[index] = lifes[particleCount - 1];
 	particleCount--;
 }
 
@@ -125,8 +129,8 @@ void ParticleSystem::draw(float dt) {
 	glPushMatrix();
 	Shader::sendArray(0, 3, vertexBuffer);
 	Shader::sendArray(1, 3, normalBuffer);
-	Shader::sendArray(2, 3, positionBuffer, MAX_PARTICLES * sizeof(glm::vec3), &positions[0], GL_STREAM_DRAW);
-	Shader::sendArray(3, 4, colorBuffer, MAX_PARTICLES * sizeof(glm::vec4), &colors[0], GL_STREAM_DRAW);
+	Shader::sendArray(2, 3, positionBuffer, particleCount * sizeof(glm::vec3), &positions[0], GL_STREAM_DRAW);
+	Shader::sendArray(3, 4, colorBuffer, particleCount * sizeof(glm::vec4), &colors[0], GL_STREAM_DRAW);
 
 	glVertexAttribDivisor(0, 0);
 	glVertexAttribDivisor(1, 1); // normal : one per quad -> 1
