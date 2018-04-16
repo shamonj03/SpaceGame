@@ -78,6 +78,10 @@ void Player::onKeyDown(SDL_KeyboardEvent& e) {
 	if (e.keysym.sym == SDLK_d) { // Rotate Right
 		angle -= 5.0f;
 	}
+
+	if (e.keysym.sym == SDLK_SPACE) { // FIRE THE LASER!
+
+	}
 }
 
 
@@ -85,6 +89,10 @@ void Player::onKeyUp(SDL_KeyboardEvent& e) {
 	if (e.keysym.sym == SDLK_w || e.keysym.sym == SDLK_s) { // Accel forward
 		acceleration = glm::vec3(0, 0, 0);
 		released = true;
+	}
+
+	if (e.keysym.sym == SDLK_SPACE) { // Stop the laser :C
+
 	}
 }
 

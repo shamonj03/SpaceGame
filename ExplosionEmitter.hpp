@@ -17,9 +17,10 @@ public:
 bool ExplosionEmitter::emit(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, glm::vec3* verticies) {
 	int slices = 20;
 
-	if (index++ > 300) {
+	if (index > 300) {
 		return false;
 	}
+	index++;
 
 	position = target;
 	velocity = glm::vec3(0, -7, 0);

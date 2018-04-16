@@ -39,7 +39,8 @@ class ParticleSystem {
 
 public:
 	ParticleSystem(Emitter* emitter_, float size);
-	~ParticleSystem();
+	~ParticleSystem() {
+	}
 
 	virtual void initializeBuffers(GLuint shader);
 	virtual void decay(float dt);
@@ -147,9 +148,6 @@ void ParticleSystem::draw(float dt) {
 	glDisableVertexAttribArray(2);
 	glDisableVertexAttribArray(3);
 	glPopMatrix();
-}
-
-ParticleSystem::~ParticleSystem() {
 }
 
 #endif // PARTICLE_SYSTEM_HPP
