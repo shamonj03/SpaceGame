@@ -7,9 +7,9 @@
 #include "Node.h"
 
 #define MAX_CAPACITY 64
+#define CHILD_COUNT 4
 
-class QuadTree
-{
+class QuadTree {
 public:
 	BoundingBox2D box;
 
@@ -52,7 +52,7 @@ inline bool QuadTree::insert(Node* data) {
 				//std::cout << "SPLIT" << std::endl;
 
 				for (int x = 0; x < count; x++) {
-					for (int i = 0; i < 8; i++) {
+					for (int i = 0; i < CHILD_COUNT; i++) {
 						if (children[i]->insert(nodes[x])) {
 							return true;
 						}
@@ -69,7 +69,7 @@ inline bool QuadTree::insert(Node* data) {
 
 
 inline bool QuadTree::insertToChildren(Node* data) {
-	for (int i = 0; i < 8; i++) {
+	for (int i = 0; i < CHILD_COUNT; i++) {
 		if (children[i]->insert(data)) {
 			return true;
 		}
@@ -82,7 +82,7 @@ inline void QuadTree::split() {
 	glm::vec2 bottom = box.bottom;
 	glm::vec2 top = box.top;
 
-	children = new QuadTree*[4];
+	children = new QuadTree*[CHILD_COUNT];
 
 	for (int i = 0; i < 4; i++) {
 		// This is faster than 3 for loops
@@ -103,9 +103,8 @@ inline bool QuadTree::withinArea(BoundingBox2D box2, std::vector<Node*>& nodez) 
 			}
 		}
 		return true;
-	}
-	else {
-		for (int i = 0; i < 8; i++) {
+	} else {
+		for (int i = 0; i < CHILD_COUNT; i++) {
 			if (children[i]->withinArea(box2, nodez)) {
 				return true;
 			}
