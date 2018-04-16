@@ -6,12 +6,16 @@
 
 #include "Util.hpp"
 #include "Shader.h"
+#include "Emitter.h"
 
 class ParticleSystem {
+	Emitter* emitter;
+
 	glm::vec3* velocities;
 	glm::vec3* positions;
 	glm::vec4* colors;
 	glm::vec3 normal;
+	float* lifes;
 
 	glm::vec3 vertices[4] = {
 		glm::vec3(-0.5f, -0.5f, 0.0f),
@@ -20,10 +24,6 @@ class ParticleSystem {
 		glm::vec3(0.5f, 0.5f, 0.0f),
 	};
 
-	float* lifes;
-
-	float maxLife;
-	float maxVelocity;
 	int particleCount;
 	int genRate;
 
@@ -40,10 +40,7 @@ class ParticleSystem {
 	virtual void destroy(int index);
 
 public:
-	float angle;
-	glm::vec3 offset;
-
-	ParticleSystem(float size, int genRate_, int maxParticles_, float maxLife_ = 10);
+	ParticleSystem(Emitter* emitter_, float size, int genRate_, int maxParticles_);
 	~ParticleSystem();
 
 	virtual void initializeBuffers(GLuint shader);
@@ -53,7 +50,7 @@ public:
 	virtual void draw(float dt);
 };
 
-ParticleSystem::ParticleSystem(float size, int genRate_, int maxParticles_, float maxLife_) : maxLife(maxLife_), maxVelocity(3), offset(0), angle(0), genRate(genRate_), MAX_PARTICLES(maxParticles_), particleCount(0), normal(glm::vec3(0, 1, 0)) {
+ParticleSystem::ParticleSystem(Emitter* emitter_, float size, int genRate_, int maxParticles_) : emitter(emitter_), genRate(genRate_), MAX_PARTICLES(maxParticles_), particleCount(0), normal(glm::vec3(0, 1, 0)) {
 	positions = new glm::vec3[MAX_PARTICLES];
 	velocities = new glm::vec3[MAX_PARTICLES];
 	colors = new glm::vec4[MAX_PARTICLES];
@@ -74,13 +71,15 @@ void ParticleSystem::initializeBuffers(GLuint shader) {
 }
 
 void ParticleSystem::emit() {
-	positions[particleCount] = offset;
+	/*positions[particleCount] = offset;
 	colors[particleCount] = glm::vec4(1, 1, 1, 1);
 	velocities[particleCount] = glm::vec3(0, -1, 0) * maxVelocity;
 	lifes[particleCount] = maxLife;
 	particleCount++;
 	Util::rotate(vertices, 4, angle);
-	Util::rotate(velocities[particleCount], angle);
+	Util::rotate(velocities[particleCount], angle);*/
+	emitter->emit(positions[particleCount], velocities[particleCount], colors[particleCount], lifes[particleCount], vertices);
+	particleCount++;
 }
 
 
