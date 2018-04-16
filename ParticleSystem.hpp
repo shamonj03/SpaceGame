@@ -25,7 +25,6 @@ class ParticleSystem {
 	};
 
 	int particleCount;
-	int genRate;
 
 	GLuint indexBuffer;
 	GLuint vertexBuffer;
@@ -34,13 +33,12 @@ class ParticleSystem {
 	GLuint colorBuffer;
 	GLuint vao;
 
-	int MAX_PARTICLES;
 
 	virtual void emit();
 	virtual void destroy(int index);
 
 public:
-	ParticleSystem(Emitter* emitter_, float size, int genRate_, int maxParticles_);
+	ParticleSystem(Emitter* emitter_, float size);
 	~ParticleSystem();
 
 	virtual void initializeBuffers(GLuint shader);
@@ -50,11 +48,11 @@ public:
 	virtual void draw(float dt);
 };
 
-ParticleSystem::ParticleSystem(Emitter* emitter_, float size, int genRate_, int maxParticles_) : emitter(emitter_), genRate(genRate_), MAX_PARTICLES(maxParticles_), particleCount(0), normal(glm::vec3(0, 1, 0)) {
-	positions = new glm::vec3[MAX_PARTICLES];
-	velocities = new glm::vec3[MAX_PARTICLES];
-	colors = new glm::vec4[MAX_PARTICLES];
-	lifes = new float[MAX_PARTICLES];
+ParticleSystem::ParticleSystem(Emitter* emitter_, float size) : emitter(emitter_), particleCount(0), normal(glm::vec3(0, 1, 0)) {
+	positions = new glm::vec3[emitter->maxParticles];
+	velocities = new glm::vec3[emitter->maxParticles];
+	colors = new glm::vec4[emitter->maxParticles];
+	lifes = new float[emitter->maxParticles];
 
 	for (int i = 0; i < 4; i++) {
 		vertices[i] *= size;
@@ -78,8 +76,9 @@ void ParticleSystem::emit() {
 	particleCount++;
 	Util::rotate(vertices, 4, angle);
 	Util::rotate(velocities[particleCount], angle);*/
-	emitter->emit(positions[particleCount], velocities[particleCount], colors[particleCount], lifes[particleCount], vertices);
-	particleCount++;
+	if (emitter->emit(positions[particleCount], velocities[particleCount], colors[particleCount], lifes[particleCount], vertices)) {
+		particleCount++;
+	}
 }
 
 
@@ -96,10 +95,13 @@ void ParticleSystem::decay(float dt) {
 }
 
 void ParticleSystem::generate(float dt) {
-	if (particleCount >= MAX_PARTICLES) {
+	if (particleCount >= emitter->maxParticles) {
 		return;
 	}
-	float toGen = genRate * dt;
+	float toGen = emitter->genRate * dt;
+	if (toGen < 1.0f) {
+		toGen = emitter->genRate;
+	}
 
 	for (int i = 0; i < toGen; i++) {
 		emit();
@@ -121,6 +123,8 @@ void ParticleSystem::update(float dt) {
 		glm::vec3* vel = &velocities[i];
 
 		*pos = *pos + *vel * dt;
+
+		emitter->update(positions[particleCount], velocities[particleCount], colors[particleCount], lifes[particleCount], vertices);
 	}
 }
 
