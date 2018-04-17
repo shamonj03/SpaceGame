@@ -96,7 +96,7 @@ void Engine::handleInput() {
 				quit = true;
 			}
 
-			if (event.key.keysym.sym == SDLK_SPACE) {
+			if (event.key.keysym.sym == SDLK_BACKQUOTE) { // Tilda ~
 				paused = !paused;
 			}
 			onKeyUp(event.key);
