@@ -28,9 +28,9 @@ public:
 
 inline bool StandardEmitter::emit(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life) {
 	position = player->position;
-	velocity = glm::vec3(0, -1, 0);
+	velocity = glm::vec3(0, -1, 0) + glm::vec3(-1.0f + (Util::randf() * 2.0f), 0, 0);
 	color = glm::vec4(1, 1, 1, 1);
-	life = 1.0f;
+	life = 0.1f;
 	Util::rotate(vertices, 4, player->angle);
 	Util::rotate(velocity, player->angle);
 	return true;

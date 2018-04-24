@@ -63,35 +63,38 @@ Player::~Player() {
 
 
 void Player::onKeyDown(SDL_KeyboardEvent& e) {
-	if (e.keysym.sym == SDLK_w) { // Accel forward
+	const Uint8 *keyboard_state_array = SDL_GetKeyboardState(NULL);
+	if (keyboard_state_array[SDL_SCANCODE_W]) { // Accel forward
 		acceleration += glm::vec3(0, 0.75f, 0);
 		released = false;
 	}
-	if (e.keysym.sym == SDLK_s) { // Deaccel
+	if (keyboard_state_array[SDL_SCANCODE_S]) { // Deaccel
 		acceleration -= glm::vec3(0, 0.75f, 0);
 		released = false;
 	}
 
-	if (e.keysym.sym == SDLK_a) { // Rotate Left
+	if (keyboard_state_array[SDL_SCANCODE_A]) { // Rotate Left
 		angle += 5.0f;
 	}
-	if (e.keysym.sym == SDLK_d) { // Rotate Right
+	if (keyboard_state_array[SDL_SCANCODE_D]) { // Rotate Right
 		angle -= 5.0f;
 	}
 
-	if (e.keysym.sym == SDLK_SPACE) { // FIRE THE LASER!
+	if (keyboard_state_array[SDL_SCANCODE_SPACE]) { // FIRE THE LASER!
 
 	}
 }
 
 
 void Player::onKeyUp(SDL_KeyboardEvent& e) {
-	if (e.keysym.sym == SDLK_w || e.keysym.sym == SDLK_s) { // Accel forward
+	const Uint8 *keyboard_state_array = SDL_GetKeyboardState(NULL);
+
+	if (keyboard_state_array[SDL_SCANCODE_W] || keyboard_state_array[SDL_SCANCODE_S]) { // Accel forward
 		acceleration = glm::vec3(0, 0, 0);
 		released = true;
 	}
 
-	if (e.keysym.sym == SDLK_SPACE) { // Stop the laser :C
+	if (keyboard_state_array[SDL_SCANCODE_SPACE]) { // Stop the laser :C
 
 	}
 }

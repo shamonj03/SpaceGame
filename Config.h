@@ -7,16 +7,12 @@
 class Config {
 public:
 
-	static enum SIM_TYPE { BALLS, WIND };
-
 	// Lighting
 	static glm::vec4 const Ia;
 	static glm::vec4 const Is;
 
 	// Material parameters
 	static float const s;
-
-	static SIM_TYPE const type;
 };
 
 
