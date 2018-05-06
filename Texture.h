@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TEXTURE_H
+#define TEXTURE_H
 
 #include <gl\glew.h>
 #include <string>
@@ -13,4 +14,4 @@ public:
 
 	void bind();
 };
-
+#endif TEXTURE_H

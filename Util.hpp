@@ -39,6 +39,6 @@ inline glm::vec3 Util::limit(const glm::vec3 &vec, float maximum) {
 		return glm::normalize(vec) * maximum;
 	}
 	return vec;
-}
+};
 
 #endif // UTIL_HPP

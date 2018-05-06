@@ -42,6 +42,8 @@ Mesh::Mesh(int rows_, int cols_, float quad_size_) : rows(rows_), cols(cols_), v
 	}
 }
 
+Mesh::~Mesh() {}
+
 void Mesh::initializeBuffers(GLuint shader) {
 	glUseProgram(shader);
 	Shader::bindArray(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, index_count * sizeof(int), &indices[0], GL_STATIC_DRAW);

@@ -1,7 +1,7 @@
-#pragma once
+#ifndef MESH_H
+#define MESH_H
 
 #include <glm\glm.hpp>
-#include <gl\glew.h>
 
 #include "Engine.h"
 #include "Texture.h"
@@ -36,6 +36,7 @@ public:
 
 	void initializeBuffers(GLuint shader);
 
-	~Mesh() {}
+	~Mesh();
 };
 
+#endif // MESH_H

@@ -1,9 +1,8 @@
-#ifndef ENTITY_HPP
-#define ENTITY_HPP
+#ifndef ENTITY_H
+#define ENTITY_H
 
-#include <glm/glm.hpp>
-#include <GL/glew.h>
-
+#include <glm\glm.hpp>
+#include <GL\glew.h>
 #include "Node.h"
 
 class Entity : public Node {
@@ -14,8 +13,11 @@ protected:
 	GLuint texCoordBuffer;
 	GLuint normalBuffer;
 	GLuint colorBuffer;
+	GLuint shader;
 
 public:
+	class World * world;
+
 	glm::vec3 velocity;
 	glm::vec3 acceleration;
 	glm::vec3 normal;
@@ -27,16 +29,11 @@ public:
 	float mass;
 	float size;
 
-	Entity(glm::vec3 position_);
+	Entity(class World* world, glm::vec3 position_);
 	~Entity() {}
 
 	virtual void initializeBuffers(GLuint shader) = 0;
 	virtual void update(float dt) = 0;
 	virtual void draw(float dt) = 0;
 };
-
-Entity::Entity(glm::vec3 position_) : Node(position_), maxSpeed(15.0f), maxForce(0.9f), angle(0), velocity(0), acceleration(0), color(1), mass(1), size(0.5f), normal(glm::vec3(0, 1, 0)) {
-
-}
-
-#endif // ENTITY_HPP
+#endif // ENTITY_H

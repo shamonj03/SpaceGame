@@ -1,6 +1,7 @@
 ﻿#include "Texture.h"
 #include <SDL_image.h>
 #include <iostream>
+
 Texture::Texture(GLuint shader, std::string path) {
 	// load sample.png into image
 	SDL_Surface *image = IMG_Load(path.c_str());

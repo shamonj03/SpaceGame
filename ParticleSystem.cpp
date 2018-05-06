@@ -1,67 +1,21 @@
-#ifndef PARTICLE_SYSTEM_HPP
-#define PARTICLE_SYSTEM_HPP
+#include "ParticleSystem.h"
 
 #include <algorithm>
 #include <vector>
-#include <glm\glm.hpp>
 #include <GL\glew.h>
 
 #include "Util.hpp"
 #include "Shader.h"
-#include "Emitter.h"
 
-#define MAX_PARTICLES 100000
-
-class ParticleSystem {
-	std::vector<Emitter*> emitters;
-
-	glm::vec3* velocities;
-	glm::vec3* positions;
-	glm::vec4* colors;
-	glm::vec3 normal;
-	float* lifes;
-
-	int particleCount;
-
-	GLuint indexBuffer;
-	GLuint vertexBuffer;
-	GLuint positionBuffer;
-	GLuint normalBuffer;
-	GLuint colorBuffer;
-	GLuint vao;
-
-	virtual void destroy(int index);
-
-public:
-	ParticleSystem();
-	~ParticleSystem() {}
-
-	void addEmitter(Emitter* emitter_);
-
-	void removeEmitter(Emitter* emitter_);
-
-	virtual void initializeBuffers(GLuint shader);
-	virtual void decay(float dt);
-	virtual void generate(float dt);
-	virtual void update(float dt);
-	virtual void draw(float dt);
-};
-
-ParticleSystem::ParticleSystem() : particleCount(0), normal(glm::vec3(0, 1, 0)) {
-	positions = new glm::vec3[MAX_PARTICLES];
-	velocities = new glm::vec3[MAX_PARTICLES];
-	colors = new glm::vec4[MAX_PARTICLES];
-	lifes = new float[MAX_PARTICLES];
+ParticleSystem::ParticleSystem(int genRate_, int maxParticles_) : alive(true), genRate(genRate_), maxParticles(maxParticles_), particleCount(0), normal(glm::vec3(0, 1, 0)) {
+	positions = new glm::vec3[maxParticles_];
+	velocities = new glm::vec3[maxParticles_];
+	colors = new glm::vec4[maxParticles_];
+	lifes = new float[maxParticles_];
 }
 
 
-void ParticleSystem::addEmitter(Emitter* emitter_) {
-	emitters.push_back(emitter_);
-}
-
-void ParticleSystem::removeEmitter(Emitter* emitter_) {
-	emitters.erase(std::remove(emitters.begin(), emitters.end(), emitter_), emitters.end());
-}
+void ParticleSystem::update(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt) {}
 
 void ParticleSystem::initializeBuffers(GLuint shader) {
 	glUseProgram(shader);
@@ -74,9 +28,12 @@ void ParticleSystem::initializeBuffers(GLuint shader) {
 
 void ParticleSystem::decay(float dt) {
 	for (int i = 0; i < particleCount; i++) {
+
 		float life = lifes[i];
 
 		if ((life - (1 * dt)) <= 0.0f) {
+			lifes[i] = 0;
+			update(positions[i], velocities[i], colors[i], lifes[i], dt);
 			destroy(i);
 		} else {
 			lifes[i] -= 1 * dt;
@@ -85,31 +42,26 @@ void ParticleSystem::decay(float dt) {
 }
 
 void ParticleSystem::generate(float dt) {
-	if (particleCount >= MAX_PARTICLES) {
+	if (particleCount >= maxParticles) {
 		return;
 	}
 
-	for (auto emitter : emitters) {
-		float toGen = emitter->genRate * dt;
+	float toGen = genRate * dt;
 
-		if (toGen < 1.0f) {
-			toGen = emitter->genRate;
-		}
+	if (toGen < 1.0f) {
+		toGen = genRate;
+	}
 
-		for (int i = 0; i < toGen; i++) {
-			if (emitter->emit(positions[particleCount], velocities[particleCount], colors[particleCount], lifes[particleCount])) {
-				particleCount++;
-			} else {
-				removeEmitter(emitter);
-			}
-		}
+	for (int i = 0; i < toGen; i++) {
+		emit(positions[particleCount], velocities[particleCount], colors[particleCount], lifes[particleCount], dt);
+		particleCount++;
 	}
 }
 
 void ParticleSystem::destroy(int index) {
 	positions[index] = positions[particleCount - 1];
 	velocities[index] = velocities[particleCount - 1];
-	colors[index] = colors[particleCount - 1];
+ 	colors[index] = colors[particleCount - 1];
 	lifes[index] = lifes[particleCount - 1];
 	particleCount--;
 }
@@ -121,17 +73,13 @@ void ParticleSystem::update(float dt) {
 		glm::vec3* vel = &velocities[i];
 
 		*pos = *pos + *vel * dt;
-
-		for (auto emitter : emitters) {
-			emitter->update(positions[particleCount], velocities[particleCount], colors[particleCount], lifes[particleCount]);
-		}
+		update(positions[i], velocities[i], colors[i], lifes[i], dt);
 	}
 }
 
 void ParticleSystem::draw(float dt) {
-	for (auto emitter : emitters) {
 		glPushMatrix();
-		Shader::sendArray(0, 3, vertexBuffer, sizeof(glm::vec3) * sizeof(emitter->vertices), &emitter->vertices[0], GL_STREAM_DRAW);
+		Shader::sendArray(0, 3, vertexBuffer, sizeof(glm::vec3) * sizeof(vertices), &vertices[0], GL_STREAM_DRAW);
 		Shader::sendArray(1, 3, normalBuffer);
 		Shader::sendArray(2, 3, positionBuffer, particleCount * sizeof(glm::vec3), &positions[0], GL_STREAM_DRAW);
 		Shader::sendArray(3, 4, colorBuffer, particleCount * sizeof(glm::vec4), &colors[0], GL_STREAM_DRAW);
@@ -148,7 +96,4 @@ void ParticleSystem::draw(float dt) {
 		glDisableVertexAttribArray(2);
 		glDisableVertexAttribArray(3);
 		glPopMatrix();
-	}
 }
-
-#endif // PARTICLE_SYSTEM_HPP

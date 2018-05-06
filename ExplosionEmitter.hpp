@@ -1,14 +1,15 @@
-#pragma once
+#ifndef EXPLOSION_EMITTER_HPP
+#define EXPLOSION_EMITTER_HPP
 
 #include "Util.hpp"
-#include "Emitter.h"
+#include "ParticleSystem.h"
 
-class ExplosionEmitter : public Emitter {
+class ExplosionEmitter : public ParticleSystem {
 public:
 	glm::vec3 target;
 	int index;
 
-	ExplosionEmitter(glm::vec3 target_, int genRate_, int maxParticles_) : Emitter(genRate_, maxParticles_), target(target_), index(0) {
+	ExplosionEmitter(glm::vec3 target_, int genRate_, int maxParticles_) : ParticleSystem(genRate_, maxParticles_), target(target_), index(0) {
 		vertices = new glm::vec3[4] {
 			glm::vec3(-0.5f, -0.5f, 0.0f),
 			glm::vec3(0.5f, -0.5f, 0.0f),
@@ -22,14 +23,14 @@ public:
 	}
 	~ExplosionEmitter() {}
 
-	virtual bool emit(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life);
+	virtual void emit(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt);
 };
 
-inline bool ExplosionEmitter::emit(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life) {
+inline void ExplosionEmitter::emit(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt) {
 	static int slices = 20;
 
 	if (index > maxParticles) {
-		return false;
+		alive = false;
 	}
 	index++;
 
@@ -43,5 +44,6 @@ inline bool ExplosionEmitter::emit(glm::vec3& position, glm::vec3& velocity, glm
 
 	Util::rotate(vertices, 4, angle);
 	Util::rotate(velocity, angle);
-	return true;
 }
+
+#endif EXPLOSION_EMITTER_HPP
