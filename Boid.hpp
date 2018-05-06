@@ -67,8 +67,8 @@ GLfloat Boid::colors[4 * 4] = {
 Boid::Boid(glm::vec3 position_) :
 	Entity(position_),
 	maxSepartion(1.0f),
-	fov(5.0f) {
-	velocity = glm::vec3(-5 + rand() % 5, -5 + (rand() % 5), 0);
+	fov(2.0f) {
+	velocity = glm::vec3(-5 + (Util::randf() * 10), -5 + (Util::randf() * 10), 0);
 	color = glm::vec4(Util::randf(), Util::randf(), Util::randf(), 1.0f);
 }
 
@@ -122,16 +122,6 @@ inline void Boid::update(float dt) {
 	acceleration += alignment() * 1.0f;
 	acceleration += cohesion() * 1.0f;
 
-
-	for (auto obj : World::obstacles3D) {
-		float dist = glm::distance(position, glm::vec3(obj->center, 0));
-
-		if ((dist > 0) && (dist < obj->dimensions.x + (size * 2.0f))) {
-			glm::vec3 diff = glm::normalize(position - glm::vec3(obj->center, 0));
-			position += diff * dist * dt;
-		}
-	}
-
 	velocity += acceleration * dt;
 	position += velocity * dt;
 	center = position + glm::vec3(size / 2.0f, size / 2.0f, 0);
@@ -158,6 +148,13 @@ inline void Boid::update(float dt) {
 	//if (position.z < World::bounds3D->bottom.z) {
 	//	position.z = World::bounds3D->top.z;
 	//}
+	
+
+	glm::vec3 dir = glm::normalize(velocity);
+	angle = glm::degrees(glm::atan(-dir.y, -dir.x)) + 90;
+	Util::rotate(Boid::vertices, 4, angle);
+	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, sizeof(glm::vec3) * sizeof(Boid::vertices), &Boid::vertices[0], GL_STREAM_DRAW);
+	Util::rotate(Boid::vertices, 4, -angle);
 }
 
 inline glm::vec3 Boid::seperation() {
@@ -189,6 +186,7 @@ inline glm::vec3 Boid::seperation() {
 		steer = glm::normalize(steer);
 		steer = (steer * maxSpeed) - velocity;
 	}
+	angle = atan2(steer.y, steer.x);
 	return steer;
 }
 
@@ -246,6 +244,7 @@ inline glm::vec3 Boid::cohesion() {
 
 		sum = glm::normalize(sum - center) * maxSpeed;
 		steer = sum - velocity;
+
 		return steer;
 	} else {
 		return glm::vec3(0, 0, 0);

@@ -9,7 +9,7 @@ class Util {
 public:
 	static glm::vec3 rotate(glm::vec3& vec, float angle);
 
-	static void rotate(glm::vec3* verticies, int length, float angle);
+	static void rotate(glm::vec3* verticies, int length, float angle, glm::vec3 axis = glm::vec3(0.0f, 0.0f, 1.0f));
 
 	static float randf();
 
@@ -22,8 +22,8 @@ inline glm::vec3 Util::rotate(glm::vec3& vec, float angle) {
 	return vec;
 }
 
-inline void Util::rotate(glm::vec3* verticies, int length, float angle) {
-	glm::mat4 rot_mat = glm::rotate(glm::mat4x4(1), glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f));
+inline void Util::rotate(glm::vec3* verticies, int length, float angle, glm::vec3 axis) {
+	glm::mat4 rot_mat = glm::rotate(glm::mat4x4(1), glm::radians(angle), axis);
 	for (int i = 0; i < length; i++) {
 		verticies[i] = rot_mat * glm::vec4(verticies[i], 0);
 	}

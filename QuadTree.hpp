@@ -6,7 +6,7 @@
 #include "BoundingBox2D.h"
 #include "Node.h"
 
-#define MAX_CAPACITY 64
+#define MAX_CAPACITY 32
 #define CHILD_COUNT 4
 
 class QuadTree {
@@ -47,7 +47,8 @@ inline bool QuadTree::insert(Node* data) {
 				nodes[count++] = data;
 				//		std::cout << "INSERTED" << std::endl;
 				return true;
-			} else {
+			}
+			else {
 				split();
 				//std::cout << "SPLIT" << std::endl;
 
@@ -85,29 +86,31 @@ inline void QuadTree::split() {
 	children = new QuadTree*[CHILD_COUNT];
 
 	children[0] = new QuadTree(BoundingBox2D(bottom, bottom + dimensions));
-	children[1] = new QuadTree(BoundingBox2D(bottom + dimensions.x, bottom + dimensions));
-	children[2] = new QuadTree(BoundingBox2D(bottom + dimensions.x, bottom + dimensions + dimensions.y));
-	children[3] = new QuadTree(BoundingBox2D(bottom + dimensions.x, bottom + dimensions + dimensions.y));
+	children[1] = new QuadTree(BoundingBox2D(bottom + glm::vec2(dimensions.x, 0), bottom + glm::vec2(dimensions.x, 0) + dimensions));
+
+	children[2] = new QuadTree(BoundingBox2D(bottom + glm::vec2(0, dimensions.y), (bottom + dimensions) + glm::vec2(0, dimensions.y)));
+	children[3] = new QuadTree(BoundingBox2D(bottom + glm::vec2(dimensions.x, 0) + glm::vec2(0, dimensions.y), (bottom + dimensions) + glm::vec2(dimensions.x, 0) + glm::vec2(0, dimensions.y)));
 }
 
-inline bool QuadTree::withinArea(BoundingBox2D box2, std::vector<Node*>& nodez) {
-	if (!box.intersect(box2)) {
+inline bool QuadTree::withinArea(BoundingBox2D range, std::vector<Node*>& nodez) {
+	if (!box.intersect(range)) {
 		return false;
 	}
 	if (isLeaf()) {
 		// Get all nodes in leaf that are within the box.
 		for (int i = 0; i < count; i++) {
-			if (box2.inBounds(nodes[i]->position)) {
+			if (range.inBounds(nodes[i]->position)) {
 				nodez.push_back(nodes[i]);
 			}
 		}
 		return true;
 	} else {
 		for (int i = 0; i < CHILD_COUNT; i++) {
-			if (children[i]->withinArea(box2, nodez)) {
+			if (children[i]->withinArea(range, nodez)) {
 				return true;
 			}
 		}
+		return false;
 	}
 	return false;
 }

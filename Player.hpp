@@ -4,6 +4,9 @@
 #include <GL/glew.h>
 #include "Shader.h"
 
+#include "ParticleSystem.hpp"
+#include "StandardEmitter.hpp"
+#include "BulletEmitter.hpp"
 #include "Entity.hpp"
 #include "Util.hpp"
 
@@ -15,6 +18,7 @@ private:
 
 public:
 	bool released;
+	ParticleSystem* particles;
 
 	Player(glm::vec3 position_);
 	~Player();
@@ -54,7 +58,8 @@ GLfloat Player::colors[4 * 4] = {
 };
 
 
-Player::Player(glm::vec3 position_) : Entity(position_) {
+Player::Player(glm::vec3 position_) : Entity(position_), particles(new ParticleSystem()) {
+	particles->addEmitter(new StandardEmitter(this, 5, 15));
 }
 
 
@@ -81,6 +86,7 @@ inline void Player::onKeyDown(SDL_KeyboardEvent& e) {
 	}
 
 	if (keyboard_state_array[SDL_SCANCODE_SPACE]) { // FIRE THE LASER!
+		particles->addEmitter(new BulletEmitter(position, 20, 20));
 
 	}
 }
@@ -105,6 +111,7 @@ inline void Player::initializeBuffers(GLuint shader) {
 		Player::vertices[i] *= size;
 	}
 	glUseProgram(shader);
+	particles->initializeBuffers(shader);
 	Shader::bindArray(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, sizeof(indices), &indices[0], GL_STATIC_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, sizeof(glm::vec3) * sizeof(Player::vertices), &Player::vertices[0], GL_STREAM_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, positionBuffer, sizeof(glm::vec3), NULL, GL_STREAM_DRAW);
@@ -145,6 +152,11 @@ inline void Player::update(float dt) {
 	if (released) {
 		velocity *= 0.99f;
 	}
+
+
+	particles->generate(dt);
+	particles->decay(dt);
+	particles->update(dt);
 }
 
 inline void Player::draw(float dt) {
@@ -170,6 +182,9 @@ inline void Player::draw(float dt) {
 	glDisableVertexAttribArray(2);
 	glDisableVertexAttribArray(3);
 	glPopMatrix();
+
+
+	particles->draw(dt);
 }
 
 #endif // PLAYER_HPP

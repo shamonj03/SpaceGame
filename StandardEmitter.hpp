@@ -3,13 +3,13 @@
 
 #include "Util.hpp"
 #include "Emitter.h"
-#include "Player.hpp"
+#include "Entity.hpp"
 
 class StandardEmitter : public Emitter {
 public:
-	Player* player;
+	Entity* player;
 
-	StandardEmitter(Player* player_, int genRate_, int maxParticles_) : Emitter(genRate_, maxParticles_), player(player_) {
+	StandardEmitter(Entity* player_, int genRate_, int maxParticles_) : Emitter(genRate_, maxParticles_), player(player_) {
 		vertices = new glm::vec3[4]{
 			glm::vec3(-0.5f, -0.5f, 0.0f),
 			glm::vec3(0.5f, -0.5f, 0.0f),
