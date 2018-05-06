@@ -84,11 +84,10 @@ inline void QuadTree::split() {
 
 	children = new QuadTree*[CHILD_COUNT];
 
-	for (int i = 0; i < 4; i++) {
-		// This is faster than 3 for loops
-		children[i] = new QuadTree(BoundingBox2D(bottom + (dimensions * glm::vec2((i & 1) ? 1 : -1, (i & 2) ? 1 : -1)),
-			bottom + (dimensions * glm::vec2((i & 1) ? 1 : -1, (i & 2) ? 1 : -1) + dimensions)));
-	}
+	children[0] = new QuadTree(BoundingBox2D(bottom, bottom + dimensions));
+	children[1] = new QuadTree(BoundingBox2D(bottom + dimensions.x, bottom + dimensions));
+	children[2] = new QuadTree(BoundingBox2D(bottom + dimensions.x, bottom + dimensions + dimensions.y));
+	children[3] = new QuadTree(BoundingBox2D(bottom + dimensions.x, bottom + dimensions + dimensions.y));
 }
 
 inline bool QuadTree::withinArea(BoundingBox2D box2, std::vector<Node*>& nodez) {

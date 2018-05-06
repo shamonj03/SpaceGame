@@ -30,10 +30,10 @@ public:
 * Each line is a unique vertex of the polygon.
 */
 glm::vec3 Player::vertices[4] = {
-	glm::vec3(-0.5f, -0.5f, 0.0f) * 0.5f,
-	glm::vec3(0.0f, -0.25f, 0.0f) * 0.5f,
-	glm::vec3(0.0f, 0.75f, 0.0f) * 0.5f,
-	glm::vec3(0.5f, -0.5f, 0.0f) * 0.5f,
+	glm::vec3(-0.5f, -0.5f, 0.0f),
+	glm::vec3(0.0f, -0.25f, 0.0f),
+	glm::vec3(0.0f, 0.75f, 0.0f),
+	glm::vec3(0.5f, -0.5f, 0.0f),
 };
 
 /*
@@ -62,7 +62,7 @@ Player::~Player() {
 }
 
 
-void Player::onKeyDown(SDL_KeyboardEvent& e) {
+inline void Player::onKeyDown(SDL_KeyboardEvent& e) {
 	const Uint8 *keyboard_state_array = SDL_GetKeyboardState(NULL);
 	if (keyboard_state_array[SDL_SCANCODE_W]) { // Accel forward
 		acceleration += glm::vec3(0, 0.75f, 0);
@@ -86,42 +86,60 @@ void Player::onKeyDown(SDL_KeyboardEvent& e) {
 }
 
 
-void Player::onKeyUp(SDL_KeyboardEvent& e) {
+inline void Player::onKeyUp(SDL_KeyboardEvent& e) {
 	const Uint8 *keyboard_state_array = SDL_GetKeyboardState(NULL);
 
-	if (keyboard_state_array[SDL_SCANCODE_W] || keyboard_state_array[SDL_SCANCODE_S]) { // Accel forward
+	if (e.keysym.sym == SDLK_w || e.keysym.sym == SDLK_s) { // Accel forward
 		acceleration = glm::vec3(0, 0, 0);
 		released = true;
 	}
 
-	if (keyboard_state_array[SDL_SCANCODE_SPACE]) { // Stop the laser :C
+	if (e.keysym.sym == SDLK_SPACE) { // Stop the laser :C
 
 	}
 }
 
 
-void Player::initializeBuffers(GLuint shader) {
+inline void Player::initializeBuffers(GLuint shader) {
+	for (int i = 0; i < 4; i++) {
+		Player::vertices[i] *= size;
+	}
 	glUseProgram(shader);
 	Shader::bindArray(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, sizeof(indices), &indices[0], GL_STATIC_DRAW);
-	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, sizeof(glm::vec3) * sizeof(vertices), &vertices[0], GL_STREAM_DRAW);
+	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, sizeof(glm::vec3) * sizeof(Player::vertices), &Player::vertices[0], GL_STREAM_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, positionBuffer, sizeof(glm::vec3), NULL, GL_STREAM_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, colorBuffer, sizeof(colors), &colors[0], GL_STATIC_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, normalBuffer, sizeof(glm::vec3), &normal, GL_STATIC_DRAW);
 	glUseProgram(0);
 }
 
-void Player::update(float dt) {
+inline void Player::update(float dt) {
 	velocity += acceleration * dt;
 	velocity = Util::limit(velocity, maxSpeed);
 
 	// TODO: This rotation method sucks! But it works.
 	Util::rotate(velocity, angle);
 	position += velocity * dt;
+
+	if (position.x > World::bounds3D->top.x) {
+		position.x = World::bounds3D->bottom.x;
+	}
+	if (position.x < World::bounds3D->bottom.x) {
+		position.x = World::bounds3D->top.x;
+	}
+
+	if (position.y > World::bounds3D->top.y) {
+		position.y = World::bounds3D->bottom.y;
+	}
+	if (position.y < World::bounds3D->bottom.y) {
+		position.y = World::bounds3D->top.y;
+	}
+
 	Util::rotate(velocity, -angle);
 
-	Util::rotate(vertices, 4, angle);
-	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, sizeof(glm::vec3) * sizeof(vertices), &vertices[0], GL_STREAM_DRAW);
-	Util::rotate(vertices, 4, -angle);
+	Util::rotate(Player::vertices, 4, angle);
+	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, sizeof(glm::vec3) * sizeof(Player::vertices), &Player::vertices[0], GL_STREAM_DRAW);
+	Util::rotate(Player::vertices, 4, -angle);
 
 	// Slows down if key released.
 	if (released) {
@@ -129,7 +147,7 @@ void Player::update(float dt) {
 	}
 }
 
-void Player::draw(float dt) {
+inline void Player::draw(float dt) {
 	glPushMatrix();
 	Shader::sendArray(0, 3, vertexBuffer);
 	Shader::sendArray(1, 3, normalBuffer);

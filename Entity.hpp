@@ -23,6 +23,9 @@ public:
 
 	float angle;
 	float maxSpeed;
+	float maxForce;
+	float mass;
+	float size;
 
 	Entity(glm::vec3 position_);
 	~Entity() {}
@@ -32,7 +35,7 @@ public:
 	virtual void draw(float dt) = 0;
 };
 
-Entity::Entity(glm::vec3 position_) : Node(position_), maxSpeed(15.0f), angle(0), velocity(0), acceleration(0), color(1), normal(glm::vec3(0, 1, 0)) {
+Entity::Entity(glm::vec3 position_) : Node(position_), maxSpeed(15.0f), maxForce(0.9f), angle(0), velocity(0), acceleration(0), color(1), mass(1), size(0.5f), normal(glm::vec3(0, 1, 0)) {
 
 }
 
