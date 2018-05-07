@@ -4,14 +4,27 @@
 #include <vector>
 #include <GL\glew.h>
 
-#include "Util.hpp"
+#include "Util.h"
 #include "Shader.h"
 
-ParticleSystem::ParticleSystem(int genRate_, int maxParticles_) : alive(true), genRate(genRate_), maxParticles(maxParticles_), particleCount(0), normal(glm::vec3(0, 1, 0)) {
-	positions = new glm::vec3[maxParticles_];
-	velocities = new glm::vec3[maxParticles_];
-	colors = new glm::vec4[maxParticles_];
-	lifes = new float[maxParticles_];
+ParticleSystem::ParticleSystem(int genRate_, int maxParticles_) : 
+	alive(true), 
+	genRate(genRate_), 
+	maxParticles(maxParticles_), 
+	particleCount(0), 
+	normal(glm::vec3(0, 1, 0)),
+	positions(new glm::vec3[maxParticles_]),
+	velocities(new glm::vec3[maxParticles_]),
+	colors(new glm::vec4[maxParticles_]),
+	lifes(new float[maxParticles_]) {
+}
+
+ParticleSystem::~ParticleSystem() {
+	delete[] velocities;
+	delete[] positions;
+	delete[] colors;
+	delete[] lifes;
+	delete[] vertices;
 }
 
 
@@ -33,12 +46,17 @@ void ParticleSystem::decay(float dt) {
 
 		if ((life - (1 * dt)) <= 0.0f) {
 			lifes[i] = 0;
-			update(positions[i], velocities[i], colors[i], lifes[i], dt);
+			destroy(positions[i], velocities[i], colors[i], lifes[i], dt);
 			destroy(i);
 		} else {
 			lifes[i] -= 1 * dt;
 		}
 	}
+}
+
+
+void ParticleSystem::destroy(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt) {
+
 }
 
 void ParticleSystem::generate(float dt) {
@@ -59,10 +77,17 @@ void ParticleSystem::generate(float dt) {
 }
 
 void ParticleSystem::destroy(int index) {
-	positions[index] = positions[particleCount - 1];
-	velocities[index] = velocities[particleCount - 1];
- 	colors[index] = colors[particleCount - 1];
-	lifes[index] = lifes[particleCount - 1];
+	int i = particleCount - 1;
+	if (i <= 0) {
+		i = 0;
+	}
+	if (i >= maxParticles) {
+		i = maxParticles;
+	}
+	positions[index] = positions[i];
+	velocities[index] = velocities[i];
+ 	colors[index] = colors[i];
+	lifes[index] = lifes[i];
 	particleCount--;
 }
 

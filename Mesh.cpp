@@ -2,6 +2,16 @@
 #include "Shader.h"
 #include <iostream>
 
+
+Mesh::~Mesh() {
+	delete[] indices;
+	delete[] verticies;
+	delete[] normals;
+	delete[] textCoords;
+	delete[] colors;
+
+}
+
 Mesh::Mesh(int rows_, int cols_, float quad_size_) : rows(rows_), cols(cols_), v_x(cols_ + 1), v_y(rows_ + 1), quad_size(quad_size_) {
 	offset = glm::vec3(-rows_ / 2, -cols_ / 2, 0);
 	vertex_count = v_x * v_y;
@@ -41,8 +51,6 @@ Mesh::Mesh(int rows_, int cols_, float quad_size_) : rows(rows_), cols(cols_), v
 		}
 	}
 }
-
-Mesh::~Mesh() {}
 
 void Mesh::initializeBuffers(GLuint shader) {
 	glUseProgram(shader);

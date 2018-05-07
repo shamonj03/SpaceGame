@@ -20,7 +20,7 @@ Engine::Engine(float width_, float height_) :
 	height(height_) {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		std::cout << "Failed to initialize SDL Error: " << SDL_GetError() << std::endl;

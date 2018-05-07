@@ -13,11 +13,11 @@ public:
 
 	glm::vec3 center;
 
-	Boid(class World* world_, glm::vec3 position_);
+	Boid(class World* world_, GLfloat shader_, glm::vec3 position_);
 	~Boid();
 
-	virtual void initializeBuffers(GLuint shader_);
 	virtual void update(float dt);
+	virtual void initializeBuffers(GLfloat shader_);
 
 	glm::vec3 seperation();
 	glm::vec3 alignment();

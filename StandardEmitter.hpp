@@ -1,7 +1,7 @@
 #ifndef STANARD_EMITTER_HPP
 #define STANARD_EMITTER_HPP
 
-#include "Util.hpp"
+#include "Util.h"
 #include "ParticleSystem.h"
 #include "Entity.h"
 

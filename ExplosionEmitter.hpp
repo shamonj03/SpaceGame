@@ -1,7 +1,7 @@
 #ifndef EXPLOSION_EMITTER_HPP
 #define EXPLOSION_EMITTER_HPP
 
-#include "Util.hpp"
+#include "Util.h"
 #include "ParticleSystem.h"
 
 class ExplosionEmitter : public ParticleSystem {
@@ -24,19 +24,20 @@ public:
 	~ExplosionEmitter() {}
 
 	virtual void emit(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt);
+	virtual void update(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt);
+	virtual void destroy(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt);
 };
 
-inline void ExplosionEmitter::emit(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt) {
+void ExplosionEmitter::emit(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt) {
 	static int slices = 20;
 
-	if (index > maxParticles) {
-		alive = false;
+	if (index >= slices) {
+		return;
 	}
 	index++;
-
 	position = target;
 	velocity = glm::vec3(0, -7, 0);
-	color = glm::vec4(1, 1, 1, 1);
+	color = glm::vec4(1, 0, 0, 1);
 	life = 0.25f;
 
 	int slice = (index) % slices;
@@ -46,4 +47,13 @@ inline void ExplosionEmitter::emit(glm::vec3& position, glm::vec3& velocity, glm
 	Util::rotate(velocity, angle);
 }
 
+void ExplosionEmitter::destroy(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt) {
+	if (index >= 20) {
+		alive = false;
+	}
+}
+
+void ExplosionEmitter::update(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt) {
+
+}
 #endif EXPLOSION_EMITTER_HPP

@@ -4,15 +4,15 @@
 #include <iostream>
 
 #include "ParticleSystem.h"
-#include "Util.hpp"
+#include "Util.h"
 #include "Entity.h"
 #include "Boid.h"
 
 class BulletEmitter : public ParticleSystem {
 public:
-	class Entity * player;
+	class Ship * player;
 
-	BulletEmitter(class Entity* player_) : ParticleSystem(1, 1), player(player_) {
+	BulletEmitter(class Ship* player_) : ParticleSystem(1, 1), player(player_) {
 		vertices = new glm::vec3[4]{
 			glm::vec3(-0.5f, -0.5f, 0.0f),
 			glm::vec3(0.5f, -0.5f, 0.0f),
@@ -29,30 +29,37 @@ public:
 	virtual void emit(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt);
 
 	virtual void update(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt);
+
+	virtual void destroy(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt);
 };
 
-inline void BulletEmitter::emit(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt) {
+void BulletEmitter::emit(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt) {
 	position = player->position;
 	velocity = glm::vec3(0, 30, 0);
 	color = glm::vec4(1, 1, 1, 1);
-	life = 1.0f;
+	life = 0.5f;
 	Util::rotate(vertices, 4, player->angle);
 	Util::rotate(velocity, player->angle);
 }
 
 
-inline void BulletEmitter::update(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt) {
+void BulletEmitter::update(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt) {
 	for (auto boid : player->world->flock) {
+		if (!boid) {
+			continue;
+		}
 		glm::vec3 dp = glm::abs(position - boid->position);
 
 		if (glm::length(dp) < 0.25f) {
 			life = 0;
+			boid->alive = false;
+			break;
 		}
 	}
+}
 
-	if (life <= 0) {
-		alive = false;
-	}
+void BulletEmitter::destroy(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt) {
+	alive = false;
 }
 
 #endif // BULLET_EMITTER_HPP

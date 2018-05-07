@@ -3,15 +3,16 @@
 
 #include <glm\glm.hpp>
 #include <GL\glew.h>
+#include <vector>
 
 class ParticleSystem {
 protected:
 	glm::vec3* velocities;
 	glm::vec3* positions;
 	glm::vec4* colors;
-	glm::vec3 normal;
-	float* lifes;
 	glm::vec3* vertices;
+	float* lifes;
+	glm::vec3 normal;
 
 	int genRate;
 	int maxParticles;
@@ -30,7 +31,7 @@ public:
 	bool alive;
 
 	ParticleSystem(int genRate_, int maxParticles_);
-	~ParticleSystem() {}
+	~ParticleSystem();
 
 	virtual void initializeBuffers(GLuint shader);
 	virtual void decay(float dt);
@@ -42,6 +43,8 @@ public:
 	virtual void emit(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt) = 0;
 
 	virtual void update(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt);
+
+	virtual void destroy(glm::vec3& position, glm::vec3& velocity, glm::vec4& color, float& life, float& dt);
 };
 
 #endif // PARTICLE_SYSTEM_H

@@ -8,6 +8,8 @@ QuadTree::QuadTree(BoundingBox2D* box_) : box(box_), count(0) {
 
 QuadTree::~QuadTree() {
 	delete[] children;
+	//delete nodes;
+	//delete box;
 }
 bool QuadTree::isLeaf() {
 	return !children;

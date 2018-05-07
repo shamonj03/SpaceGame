@@ -7,14 +7,14 @@
 
 #include "BoundingBox2D.h"
 #include "ParticleSystem.h"
-#include "Util.hpp"
+#include "Util.h"
 
-Ship::Ship(class World* world_, glm::vec3 position_) : Entity(world_, position_),
-colors(new GLfloat[16] {
-	1, 1, 1, 1,
-	1, 1, 1, 1,
-	1, 1, 1, 1,
-	1, 1, 1, 1}),
+Ship::Ship(class World* world_, GLfloat shader_, glm::vec3 position_) : Entity(world_, shader_, position_),
+colors{
+	glm::vec4(1, 1, 1, 1),
+	glm::vec4(1, 1, 1, 1),
+	glm::vec4(1, 1, 1, 1),
+	glm::vec4(1, 1, 1, 1) },
 indices{0, 1, 2, 2, 3, 1},
 vertices{
 	glm::vec3(-0.5f, -0.5f, 0.0f),
@@ -22,26 +22,29 @@ vertices{
 	glm::vec3(0.0f, 0.75f, 0.0f),
 	glm::vec3(0.5f, -0.5f, 0.0f)} {
 
-}
-
-Ship::~Ship() {
-}
-
-void Ship::initializeBuffers(GLuint shader_) {
-	shader = shader_;
 	for (int i = 0; i < 4; i++) {
 		vertices[i] *= size;
 	}
-	glUseProgram(shader);
-	for (auto particle : emitters) {
-		particle->initializeBuffers(shader);
-	}
-	Shader::bindArray(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, sizeof(indices), &indices[0], GL_STATIC_DRAW);
-	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, sizeof(glm::vec3) * sizeof(vertices), &vertices[0], GL_STREAM_DRAW);
+}
+
+Ship::~Ship() {
+	//delete[] colors;
+}
+
+
+void Ship::initializeBuffers(GLfloat shader_) {
+	glUseProgram(shader_);
+	Shader::bindArray(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, sizeof(GLuint) * indices.size(), &indices[0], GL_STATIC_DRAW);
+	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, sizeof(glm::vec3) * vertices.size(), NULL, GL_STREAM_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, positionBuffer, sizeof(glm::vec3), NULL, GL_STREAM_DRAW);
-	Shader::bindArray(GL_ARRAY_BUFFER, colorBuffer, 4 * sizeof(vertices), &colors[0], GL_STATIC_DRAW);
+	Shader::bindArray(GL_ARRAY_BUFFER, colorBuffer, sizeof(glm::vec4) * colors.size(), &colors[0], GL_STATIC_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, normalBuffer, sizeof(glm::vec3), &normal, GL_STATIC_DRAW);
 	glUseProgram(0);
+}
+
+void Ship::addEmitter(ParticleSystem* emitter, GLfloat Shader) {
+	emitters.push_back(emitter);
+	emitter->initializeBuffers(Shader);
 }
 
 void Ship::update(float dt) {
@@ -67,16 +70,15 @@ void Ship::update(float dt) {
 	}
 
 	Util::rotate(velocity, -angle);
-
-	Util::rotate(Ship::vertices, 4, angle);
-	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, sizeof(glm::vec3) * sizeof(Ship::vertices), &Ship::vertices[0], GL_STREAM_DRAW);
-	Util::rotate(Ship::vertices, 4, -angle);
+	//Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, sizeof(glm::vec3) * sizeof(vertices), &vertices[0], GL_STREAM_DRAW);
+//	Util::rotate(vertices, 4, -angle);
 
 	for (auto particle : emitters) {
 		particle->generate(dt);
 		particle->update(dt);
 		particle->decay(dt);
-
+	}
+	for (auto particle : emitters) {
 		if (!particle->alive) {
 			emitters.erase(std::remove(emitters.begin(), emitters.end(), particle), emitters.end());
 		}
@@ -85,7 +87,8 @@ void Ship::update(float dt) {
 
 void Ship::draw(float dt) {
 	glPushMatrix();
-	Shader::sendArray(0, 3, vertexBuffer);
+	Util::rotate(vertices, 4, angle);
+	Shader::sendArray(0, 3, vertexBuffer, sizeof(glm::vec3) * vertices.size(), &vertices[0], GL_STREAM_DRAW);
 	Shader::sendArray(1, 3, normalBuffer);
 	Shader::sendArray(2, 3, positionBuffer, sizeof(glm::vec3), &position[0], GL_STREAM_DRAW);
 	//Shader::sendArray(2, 2, texCoordBuffer);
@@ -105,6 +108,7 @@ void Ship::draw(float dt) {
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
 	glDisableVertexAttribArray(3);
+	Util::rotate(vertices, 4, -angle);
 	glPopMatrix();
 
 	for (auto particle : emitters) {

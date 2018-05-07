@@ -13,27 +13,28 @@ protected:
 	GLuint texCoordBuffer;
 	GLuint normalBuffer;
 	GLuint colorBuffer;
-	GLuint shader;
 
 public:
 	class World * world;
 
+	GLuint shader;
 	glm::vec3 velocity;
 	glm::vec3 acceleration;
 	glm::vec3 normal;
 	glm::vec4 color;
 
+	bool alive;
 	float angle;
 	float maxSpeed;
 	float maxForce;
 	float mass;
 	float size;
 
-	Entity(class World* world, glm::vec3 position_);
-	~Entity() {}
+	Entity(class World* world, GLfloat shader, glm::vec3 position_);
+	~Entity();
 
-	virtual void initializeBuffers(GLuint shader) = 0;
 	virtual void update(float dt) = 0;
 	virtual void draw(float dt) = 0;
+	virtual void initializeBuffers(GLfloat shader_) = 0;
 };
 #endif // ENTITY_H
