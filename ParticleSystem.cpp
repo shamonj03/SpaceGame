@@ -32,9 +32,9 @@ void ParticleSystem::update(glm::vec3& position, glm::vec3& velocity, glm::vec4&
 
 void ParticleSystem::initializeBuffers(GLuint shader) {
 	glUseProgram(shader);
-	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, sizeof(glm::vec3) * particleCount, NULL, GL_STREAM_DRAW);
-	Shader::bindArray(GL_ARRAY_BUFFER, positionBuffer, particleCount * sizeof(glm::vec3), NULL, GL_STREAM_DRAW);
-	Shader::bindArray(GL_ARRAY_BUFFER, colorBuffer, particleCount * sizeof(glm::vec4), NULL, GL_STREAM_DRAW);
+	Shader::bindArray(GL_ARRAY_BUFFER, vertexBuffer, maxParticles * sizeof(glm::vec3), NULL, GL_STREAM_DRAW);
+	Shader::bindArray(GL_ARRAY_BUFFER, positionBuffer, maxParticles * sizeof(glm::vec3), NULL, GL_STREAM_DRAW);
+	Shader::bindArray(GL_ARRAY_BUFFER, colorBuffer, maxParticles * sizeof(glm::vec4), NULL, GL_STREAM_DRAW);
 	Shader::bindArray(GL_ARRAY_BUFFER, normalBuffer, sizeof(glm::vec3), &normal, GL_STATIC_DRAW);
 	glUseProgram(0);
 }

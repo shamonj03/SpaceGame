@@ -2,16 +2,19 @@
 
 BoundingBox2D::~BoundingBox2D() {}
 
-BoundingBox2D::BoundingBox2D(glm::vec2 ceneter_, float r_) : dimensions(glm::vec2(r_ * 2, r_ * 2)) {
-	top = ceneter_ + (dimensions / 2.0f);
-	bottom = ceneter_ - (dimensions / 2.0f);
+BoundingBox2D::BoundingBox2D(glm::vec2 ceneter_, float r_) : 
+	dimensions(glm::vec2(r_ * 2, r_ * 2)),
+	top(ceneter_ + r_),
+	bottom(ceneter_ - r_) {
 }
 
-BoundingBox2D::BoundingBox2D(glm::vec2 bottom_, glm::vec2 top_) : top(top_), bottom(bottom_) {
-	dimensions = glm::abs(top - bottom);
+BoundingBox2D::BoundingBox2D(glm::vec2 bottom_, glm::vec2 top_) : 
+	top(top_), 
+	bottom(bottom_),
+	dimensions(glm::abs(top_ - bottom_)) {
 }
 
-bool BoundingBox2D::inBounds(glm::vec2 pos) {
+bool BoundingBox2D::contains(glm::vec2 pos) {
 	return (pos.x >= bottom.x && pos.x <= top.x) && (pos.y >= bottom.y && pos.y <= top.y);
 }
 

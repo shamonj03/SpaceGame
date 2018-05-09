@@ -13,7 +13,7 @@ public:
 	BoundingBox2D(glm::vec2 ceneter_, float r_);
 	~BoundingBox2D();
 
-	bool inBounds(glm::vec2 pos);
+	bool contains(glm::vec2 pos);
 
 	bool intersect(BoundingBox2D other);
 };

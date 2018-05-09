@@ -8,6 +8,7 @@
 #include "BoundingBox2D.h"
 #include "ParticleSystem.h"
 #include "Util.h"
+#include "StandardEmitter.hpp"
 
 Ship::Ship(class World* world_, GLfloat shader_, glm::vec3 position_) : Entity(world_, shader_, position_),
 colors{
@@ -25,6 +26,7 @@ vertices{
 	for (int i = 0; i < 4; i++) {
 		vertices[i] *= size;
 	}
+	addEmitter(new StandardEmitter(this, 5, 20), shader_);
 }
 
 Ship::~Ship() {
@@ -43,8 +45,12 @@ void Ship::initializeBuffers(GLfloat shader_) {
 }
 
 void Ship::addEmitter(ParticleSystem* emitter, GLfloat Shader) {
-	emitters.push_back(emitter);
-	emitter->initializeBuffers(Shader);
+	try {
+		emitters.push_back(emitter);
+		emitter->initializeBuffers(Shader);
+	} catch (std::exception e) {
+		// code to handle ExceptionName exception
+	}
 }
 
 void Ship::update(float dt) {

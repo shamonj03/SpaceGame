@@ -16,6 +16,8 @@
 #include "ParticleSystem.h"
 #include "Player.h"
 
+#include "StandardEmitter.hpp"
+
 Boid::Boid(World* world_, GLfloat shader_, glm::vec3 position_) :
 	Ship(world_, shader_, position_),
 	maxSepartion(1.5f),
@@ -49,7 +51,6 @@ void Boid::update(float dt) {
 
 	acceleration *= 0;
 
-
 	glm::vec3 dir = glm::normalize(velocity);
 	angle = glm::degrees(glm::atan(-dir.y, -dir.x)) + 90;
 
@@ -65,6 +66,18 @@ void Boid::update(float dt) {
 	}
 	if (position.y < world->bounds3D->bottom.y) {
 		position.y = world->bounds3D->top.y;
+	}
+
+
+	for (auto particle : emitters) {
+		particle->generate(dt);
+		particle->update(dt);
+		particle->decay(dt);
+	}
+	for (auto particle : emitters) {
+		if (!particle->alive) {
+			emitters.erase(std::remove(emitters.begin(), emitters.end(), particle), emitters.end());
+		}
 	}
 }
 

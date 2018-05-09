@@ -31,8 +31,13 @@ inline void StandardEmitter::emit(glm::vec3& position, glm::vec3& velocity, glm:
 	velocity = glm::vec3(0, -1, 0) + glm::vec3(-1.0f + (Util::randf() * 2.0f), 0, 0);
 	color = glm::vec4(1, 1, 1, 1);
 	life = 0.1f;
-	Util::rotate(vertices, 4, player->angle);
-	Util::rotate(velocity, player->angle);
+
+
+	glm::vec3 dir = glm::normalize(velocity);
+	float angle = glm::degrees(glm::atan(-dir.y, -dir.x)) + 90;
+
+	Util::rotate(vertices, 4, angle);
+	Util::rotate(velocity, angle);
 }
 
 #endif // STANARD_EMITTER_HPP

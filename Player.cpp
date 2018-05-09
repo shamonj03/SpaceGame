@@ -13,7 +13,6 @@ Player::Player(World* world_, GLfloat shader_, glm::vec3 position_) : Ship(world
 }
 
 Player::~Player() {
-	addEmitter(new StandardEmitter(this, 10, 50), shader);
 }
 
 

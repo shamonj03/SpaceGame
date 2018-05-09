@@ -3,65 +3,57 @@
 #include "BoundingBox2D.h"
 #include "Node.h"
 
-QuadTree::QuadTree(BoundingBox2D* box_) : box(box_), count(0) {
+QuadTree::QuadTree(BoundingBox2D* box_) : box(box_), count(0), leaf(true) {
 }
 
 QuadTree::~QuadTree() {
 	delete[] children;
-	//delete nodes;
-	//delete box;
 }
 bool QuadTree::isLeaf() {
-	return !children;
+	return leaf;
 }
 
 int QuadTree::size() {
 	return count;
 }
 
-bool QuadTree::insert(Node* data) {
-	if (isLeaf()) { // This is a leaf
-		if (box->inBounds(data->position)) {
-			if (count < MAX_CAPACITY) {
-				nodes[count++] = data;
-				//		std::cout << "INSERTED" << std::endl;
-				return true;
-			}
-			else {
-				split();
-				//std::cout << "SPLIT" << std::endl;
+void QuadTree::insert(Node* data) {
+	if (!data) { // Null data
+		return;
+	}
 
-				for (int x = 0; x < count; x++) {
-					for (int i = 0; i < CHILD_COUNT; i++) {
-						if (children[i]->insert(nodes[x])) {
-							return true;
-						}
-					}
+	if (!box->contains(data->position)) { // Not in bounds
+		return;
+	}
+
+	if (isLeaf()) {
+		if (count < MAX_CAPACITY) {
+			nodes[count++] = data;
+		} else {
+			split();
+			for (int i = 0; i < CHILD_COUNT; i++) {
+				children[i]->insert(data);
+
+				for (int i2 = 0; i2 < count; i2++) {
+					children[i]->insert(nodes[i2]);
 				}
-				return insertToChildren(data);
 			}
 		}
 	} else {
-		return insertToChildren(data);
-	}
-	return false;
-}
-
-
-bool QuadTree::insertToChildren(Node* data) {
-	for (int i = 0; i < CHILD_COUNT; i++) {
-		if (children[i]->insert(data)) {
-			return true;
+		for (int i = 0; i < CHILD_COUNT; i++) {
+			children[i]->insert(data);
 		}
 	}
-	return false;
 }
+
+
 
 void QuadTree::split() {
 	glm::vec2 dimensions = box->dimensions / 2.0f;
 	glm::vec2 bottom = box->bottom;
 	glm::vec2 top = box->top;
 
+	leaf = false;
 	children = new QuadTree*[CHILD_COUNT];
 
 	children[0] = new QuadTree(new BoundingBox2D(bottom, bottom + dimensions));
@@ -71,25 +63,20 @@ void QuadTree::split() {
 	children[3] = new QuadTree(new BoundingBox2D(bottom + glm::vec2(dimensions.x, 0) + glm::vec2(0, dimensions.y), (bottom + dimensions) + glm::vec2(dimensions.x, 0) + glm::vec2(0, dimensions.y)));
 }
 
- bool QuadTree::withinArea(BoundingBox2D* range, std::vector<Node*>& nodez) {
+ void QuadTree::withinArea(BoundingBox2D* range, std::vector<Node*>& nodez) {
 	if (!box->intersect(*range)) {
-		return false;
+		return;
 	}
 	if (isLeaf()) {
 		// Get all nodes in leaf that are within the box->
 		for (int i = 0; i < count; i++) {
-			if (range->inBounds(nodes[i]->position)) {
+			if (range->contains(nodes[i]->position)) {
 				nodez.push_back(nodes[i]);
 			}
 		}
-		return true;
-	} else {
-		for (int i = 0; i < CHILD_COUNT; i++) {
-			if (children[i]->withinArea(range, nodez)) {
-				return true;
-			}
-		}
-		return false;
+		return;
+	} 
+	for (int i = 0; i < CHILD_COUNT; i++) {
+		children[i]->withinArea(range, nodez);
 	}
-	return false;
 }

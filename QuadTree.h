@@ -11,6 +11,7 @@ public:
 	class BoundingBox2D* box;
 
 	int count;
+	bool leaf;
 	class Node* nodes[MAX_CAPACITY];
 	QuadTree** children;
 
@@ -18,10 +19,9 @@ public:
 
 	~QuadTree();
 
-	bool withinArea(class BoundingBox2D* box2, std::vector<class Node*>& nodez);
+	void withinArea(class BoundingBox2D* box2, std::vector<class Node*>& nodez);
 
-	bool insert(class Node* data);
-	bool insertToChildren(class Node* data);
+	void insert(class Node* data);
 
 	inline void split();
 
